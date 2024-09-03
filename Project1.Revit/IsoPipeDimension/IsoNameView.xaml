@@ -1,0 +1,53 @@
+﻿<Window x:Class="Project1.Revit.IsoPipeDimension.IsoNameView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Project1.Revit.IsoPipeDimension"
+        mc:Ignorable="d"
+        Title="3D 뷰 이름 입력"
+        WindowStartupLocation="CenterOwner"
+        SizeToContent="WidthAndHeight"
+        ResizeMode="NoResize">
+  <Window.DataContext>
+    <local:PipeDimensionVM x:Name="VM"/>
+  </Window.DataContext>
+  <Window.Resources>
+    <Style TargetType="Button">
+      <Setter Property="Width" Value="75"/>
+      <Setter Property="Height" Value="25"/>
+    </Style>
+    <Style TargetType="TextBox">
+      <Setter Property="TextAlignment" Value="Center"/>
+    </Style>
+    <Style TargetType="TextBlock">
+      <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+  </Window.Resources>
+  
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="auto"/>
+      <RowDefinition Height="auto"/>
+    </Grid.RowDefinitions>
+    <StackPanel Grid.Row="0"
+                Margin="5"
+                Orientation="Horizontal">
+      <TextBlock Text="뷰 이름: "/>
+      <TextBox Text="{Binding ViewName}"
+               Width="200"/>
+    </StackPanel>
+    <StackPanel Grid.Row="1"
+                Margin="0 0 5 0"
+                Orientation="Horizontal"
+                HorizontalAlignment="Right">
+      <Button Content="적용"
+              Margin="5"
+              Command="{Binding CmdApply}"
+              CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}"/>
+      <Button Content="취소"
+              IsCancel="True"/>
+    </StackPanel>
+  </Grid>
+</Window>
+
