@@ -17,58 +17,58 @@ namespace Project1.Revit.Common {
       public const string ConstructionMain_8 = "Example_Main8";
       #endregion
       #region 건설 중분류
-      public const string ConstructionMiddle_1 =  "Example_Middle_A";
-      public const string ConstructionMiddle_2 =  "Example_Middle_B";
-      public const string ConstructionMiddle_3 =  "Example_Middle_C";
-      public const string ConstructionMiddle_4 =  "Example_Middle_D";
-      public const string ConstructionMiddle_5 =  "Example_Middle_E";
-      public const string ConstructionMiddle_6 =  "Example_Middle_F";
-      public const string ConstructionMiddle_7 =  "Example_Middle_G";
-      public const string ConstructionMiddle_8 =  "Example_Middle_H";
-      public const string ConstructionMiddle_9 =  "Example_Middle_I";
-      public const string ConstructionMiddle_10 = "Example_Middle_J";
-      public const string ConstructionMiddle_11 = "Example_Middle_K";
-      public const string ConstructionMiddle_12 = "Example_Middle_L";
-      public const string ConstructionMiddle_13 = "Example_Middle_M";
-      public const string ConstructionMiddle_14 = "Example_Middle_N";
-      public const string ConstructionMiddle_15 = "Example_Middle_O";
-      public const string ConstructionMiddle_16 = "Example_Middle_P";
+      public const string ConstructionSub_NA = "NA";
+      public const string ConstructionSub_1 = "Example_Sub_A";
+      public const string ConstructionSub_2 = "Example_Sub_B";
+      public const string ConstructionSub_3 = "Example_Sub_C";
+      public const string ConstructionSub_4 = "Example_Sub_D";
+      public const string ConstructionSub_5 = "Example_Sub_E";
+      public const string ConstructionSub_6 = "Example_Sub_F";
+      public const string ConstructionSub_7 = "Example_Sub_G";
+      public const string ConstructionSub_8 = "Example_Sub_H";
+      public const string ConstructionSub_9 = "Example_Sub_I";
+      public const string ConstructionSub_10 = "Example_Sub_J";
+      public const string ConstructionSub_11 = "Example_Sub_K";
+      public const string ConstructionSub_12 = "Example_Sub_L";
+      public const string ConstructionSub_13 = "Example_Sub_M";
+      public const string ConstructionSub_14 = "Example_Sub_N";
+      public const string ConstructionSub_15 = "Example_Sub_O";
       #endregion
 
       public static StrList Construction_Main1s = new StrList() {
-        ConstructionMiddle_2,
-        ConstructionMiddle_3,
+        ConstructionSub_1,
+        ConstructionSub_2,
       };
       public static StrList Construction_Main2s = new StrList() {
-        ConstructionMiddle_4,
-        ConstructionMiddle_5,
+        ConstructionSub_3,
+        ConstructionSub_4,
       };
       public static StrList Construction_Main3s = new StrList() {
-        ConstructionMiddle_6,
-        ConstructionMiddle_7,
-        ConstructionMiddle_8,
+        ConstructionSub_5,
+        ConstructionSub_6,
+        ConstructionSub_7,
       };
       public static StrList Construction_Main4s = new StrList() {
-        ConstructionMiddle_1,
+        ConstructionSub_NA,
       };
       public static StrList Construction_Main5s = new StrList() {
-        ConstructionMiddle_1,
+        ConstructionSub_NA,
       };
       public static StrList Construction_Main6s = new StrList() {
-        ConstructionMiddle_7,
+        ConstructionSub_6,
       };
       public static StrList Construction_Main7s = new StrList() {
-        ConstructionMiddle_6,
-        ConstructionMiddle_9,
-        ConstructionMiddle_10,
-        ConstructionMiddle_11,
-        ConstructionMiddle_12,
-        ConstructionMiddle_13,
-        ConstructionMiddle_14,
+        ConstructionSub_5,
+        ConstructionSub_8,
+        ConstructionSub_9,
+        ConstructionSub_10,
+        ConstructionSub_11,
+        ConstructionSub_12,
+        ConstructionSub_13,
       };
       public static StrList Construction_Main8s = new StrList() {
-        ConstructionMiddle_15,
-        ConstructionMiddle_16,
+        ConstructionSub_14,
+        ConstructionSub_15,
       };
       public static Dictionary<string, StrList> ConstructionBim
           = new Dictionary<string, StrList> {

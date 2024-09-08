@@ -14,9 +14,7 @@ using static Project1.Revit.Common.ClassificationCriteria;
 namespace Project1.Revit.FbxNwcExportor {
   // FBX 파일명 기준
   // 건설 BIM : (_기준 2번째까지)_층_분할구역기둥열_대분류_중분류.fbx
-  //          ex:IC_M16_8F_X10Y6_IN_CON.fbx
-  // H-up BIM : ProjectCode_FileCode(DIF등)_EqId_층_분할구역기둥열_대분류.fbx
-  //          ex:6P1_DIF_L10R01_6F_X23Y7_Equipment.fbx
+  // H-up BIM : ProjectCode_FileCode_EqId_층_분할구역기둥열_대분류.fbx
 
   public class FbxExportOptionVM : ViewModelBase {
     private Document _Doc = null;
@@ -24,9 +22,9 @@ namespace Project1.Revit.FbxNwcExportor {
     private BoundingBoxXYZ _ViewBoundBox = null;
     private ExportorObject _ExportorObject = null;
 
-    private Dictionary<string, List<Element>> _ToolNameDic;
-    private Dictionary<string, List<RevitLinkInstance>> _ClassificationLink;
+    private List<FbxExportInfo> _ExportInfos;
     private const string _NA = "NA";
+
     private static readonly List<string> _FileCodes = new List<string>() {
       "FileCode1",
       "FileCode2",
@@ -40,7 +38,7 @@ namespace Project1.Revit.FbxNwcExportor {
       "FileCode10",
     };
     private string _FileCode = _NA;
-    private string _GridInfo = string.Empty;
+
     private const string _Roof = "ROOF FL";
     private static readonly List<string> _LevelNaming = new List<string>() {
       "st FL",
@@ -422,7 +420,6 @@ namespace Project1.Revit.FbxNwcExportor {
 
     private void ExportByOptions() {
       if (StartLevel == null || EndLevel == null) { return; }
-      _GridInfo = _NA;
 
       if (IsGridMode) { GetLinkFiles(); }
       var allElems = _Doc.ElementCollector(_View.Id);
@@ -480,24 +477,24 @@ namespace Project1.Revit.FbxNwcExportor {
 
     private void GetToolByEqId() {
       var elems = _Doc.ElementCollector(_View.Id);
-      _ToolNameDic = new Dictionary<string, List<Element>>();
       var exportInfos = new List<FbxExportInfo>();
 
       foreach (var item in elems) {
-        var ToolName = ProjectParameterList.Read(item).EqId;
+        var toolName = ProjectParameterList.Read(item).EqId;
 
-        if (string.IsNullOrEmpty(ToolName) && item.IsMechanicalEquipment()) {
-          ToolName = item.Name;
+        if (string.IsNullOrEmpty(toolName) && item.IsMechanicalEquipment()) {
+          toolName = item.Name;
         }
-        if (string.IsNullOrEmpty(ToolName)) { continue; }
+        if (string.IsNullOrEmpty(toolName)) { continue; }
 
-        var temp = ToolName.Split('_');
+        var temp = toolName.Split('_');
         if (!temp.Any()) { continue; }
-        ToolName = temp.First();
+        toolName = temp.First();
 
-        if (IsSingleTool && !ToolName.Equals(ToolName)) { continue; }
+        // 단일로 추출시
+        if (IsSingleTool && !toolName.Equals(toolName)) { continue; }
 
-        AddDictionary(ToolName, item, ref _ToolNameDic);
+        exportInfos.AddItem(toolName, item);
       }
 
       Offset = 0;
@@ -510,13 +507,13 @@ namespace Project1.Revit.FbxNwcExportor {
       } else if (IsToolMode) {
         var min = _ViewBoundBox.Min;
         var max = _ViewBoundBox.Max;
-        CropSectionBox(min.X, min.Y, max.X, max.Y);
+        CropSectionBox(min.X, min.Y, max.X, max.Y, string.Empty);
       }
     }
 
     private void GetLinkFiles() {
       var doc = _Doc;
-      _ClassificationLink = new Dictionary<string, List<RevitLinkInstance>>();
+      _ExportInfos = new List<FbxExportInfo>();
 
       var linkInstances = doc.TypeElements(typeof(RevitLinkInstance));
       foreach (RevitLinkInstance link in linkInstances) {
@@ -525,36 +522,12 @@ namespace Project1.Revit.FbxNwcExportor {
         if (type is RevitLinkType linkType) {
           if (linkType.GetLinkedFileStatus() != LinkedFileStatus.Loaded) { continue; }
         }
-        var mainCate = Constructions.ConstructionMiddle_1;
-        var middleCate = Constructions.ConstructionMiddle_1;
 
         var linkName = link.Name;
         var splitNames = linkName.Split('_');
-        foreach (var kvp in Constructions.ConstructionBim) {
-          for (int i = 0; i < splitNames.Count(); i++) {
-            var splited = splitNames[i];
-            if (splited.Equals(kvp.Key)) {
-              mainCate = splited;
+        GetConstructionCategory(splitNames, out var mainCate, out var subCate);
 
-              bool isFound = false;
-              for (int j = i + 1; j < splitNames.Count(); j++) {
-                var splitedMid = splitNames[j];
-                foreach (var item in kvp.Value) {
-                  if (splitedMid.Contains(item)) {
-                    middleCate = item;
-                    isFound = true;
-                    break;
-                  }
-                }
-                if (isFound) { break; }
-              }
-              break;
-            }
-          }
-          if (!mainCate.Equals(Constructions.ConstructionMiddle_1)) { break; }
-        }
-
-        var categories = $"{mainCate}_{middleCate}";
+        var categories = $"{mainCate}_{subCate}";
         var names = string.Empty;
         if (splitNames.Count() > 0) {
           names = $"{splitNames[0]}_";
@@ -566,7 +539,7 @@ namespace Project1.Revit.FbxNwcExportor {
         } else { names = $"{_NA}_{_NA}"; }
 
         categories = $"{names}_{categories}";
-        AddDictionary(categories, link, ref _ClassificationLink);
+        _ExportInfos.AddItem(categories, link);
       }
     }
 
@@ -598,28 +571,27 @@ namespace Project1.Revit.FbxNwcExportor {
           var minY = yCurve0.Y < yCurve1.Y ? yCurve0.Y : yCurve1.Y;
           var maxY = yCurve0.Y > yCurve1.Y ? yCurve0.Y : yCurve1.Y;
 
-          _GridInfo = $"{xGrid0.Name}{yGrid0.Name}";
-          CropSectionBox(minX, minY, maxX, maxY);
+          var gridInfo = $"{xGrid0.Name}{yGrid0.Name}";
+          CropSectionBox(minX, minY, maxX, maxY, gridInfo);
         }
       }
     }
 
-    private void CropSectionBox(double minX, double minY, double maxX, double maxY) {
+    private void CropSectionBox(double minX, double minY, double maxX, double maxY, string gridInfo) {
       var startInx = Levels.IndexOf(StartLevel);
       var endInx = Levels.IndexOf(EndLevel);
       for (int levelInx = startInx; levelInx <= endInx; levelInx++) {
-        double minZ = 0.0;
-        double maxZ = 0.0;
+        double minZ, maxZ;
         var level0 = Levels[levelInx];
+        var elevation0 = level0.Elevation;
 
         if (levelInx != Levels.Count() - 1) {
           var level1 = Levels[levelInx + 1];
-          minZ = level0.Elevation < level1.Elevation
-              ? level0.Elevation : level1.Elevation;
-          maxZ = level0.Elevation > level1.Elevation
-              ? level0.Elevation : level1.Elevation;
+          var elevation1 = level1.Elevation;
+          minZ = Math.Min(elevation0, elevation1);
+          maxZ = Math.Max(elevation0, elevation1);
         } else {
-          minZ = level0.Elevation;
+          minZ = elevation0;
           maxZ = _ViewBoundBox.Max.Z;
           if (minZ > maxZ) {
             System.Diagnostics.Debug.WriteLine($"{level0.Name}");
@@ -638,12 +610,12 @@ namespace Project1.Revit.FbxNwcExportor {
         _View.SetSectionBox(bb);
         _Doc.Regenerate();
 
-        ExportInSectionBox(level0);
+        ExportInSectionBox(level0, gridInfo);
       }
     }
 
 
-    private void ExportInSectionBox(Level level) {
+    private void ExportInSectionBox(Level level, string gridInfo) {
       var levelName = string.Empty;
       foreach (var item in level.Name) {
         if (!char.IsDigit(item)) { break; }
@@ -652,21 +624,20 @@ namespace Project1.Revit.FbxNwcExportor {
       if (string.IsNullOrEmpty(levelName)) { levelName = level.Name; } else { levelName += "F"; }
 
       if (IsGridMode) {
-        if (_ClassificationLink != null && _ClassificationLink.Any()) {
-          BasisLinkFileName($"{levelName}_{_GridInfo}");
+        if (_ExportInfos != null && _ExportInfos.Any()) {
+          BasisLinkFileName($"{levelName}_{gridInfo}");
         }
       } else if (IsToolMode) {
         var doc = _Doc;
 
-        foreach (var kvp in _ToolNameDic) {
-          var ToolName = kvp.Key;
+        foreach (var info in _ExportInfos) {
+          var ToolName = info.CategoryName;
 
           var exportElems = new List<Element>();
           var viewedElems = doc.ElementCollector(_View.Id).ToList();
           var ids = new HashSet<ElementId>();
-          foreach (var item in kvp.Value) {
-            ids.Add(item.Id);
-          }
+          var elems = info.Elements;
+          foreach (var item in elems) { ids.Add(item.Id); }
 
           foreach (var item in viewedElems) {
             if (ids.Contains(item.Id)) { exportElems.Add(item); }
@@ -674,88 +645,72 @@ namespace Project1.Revit.FbxNwcExportor {
 
           if (!IsCropGrid) {
             Element equip = null;
-            foreach (var item in kvp.Value) {
+            foreach (var item in elems) {
               if (item.IsMechanicalEquipment()) {
                 equip = item;
               }
             }
             var pnt = equip.GetLocationPoint();
-            if (pnt != null) {
-              _GridInfo = string.Empty;
-              for (int i = 0; i < XGridList.Count - 1; i++) {
-                var xGrid0 = XGridList[i];
-                var xGrid1 = XGridList[i + 1];
-                if (xGrid0.Curve is Line line0 && xGrid1.Curve is Line line1) {
-                  if (pnt.X > line0.Origin.X && pnt.X < line1.Origin.X) {
-                    _GridInfo += xGrid0.Name;
-                    break;
-                  }
-                }
-              }
-              for (int i = 0; i < YGridList.Count - 1; i++) {
-                var yGrid0 = YGridList[i];
-                var yGrid1 = YGridList[i + 1];
-                if (yGrid0.Curve is Line line0 && yGrid1.Curve is Line line1) {
-                  if (pnt.Y > line0.Origin.Y && pnt.Y < line1.Origin.Y) {
-                    _GridInfo += yGrid0.Name;
-                    break;
-                  }
-                }
-              }
-            }
-            if (string.IsNullOrEmpty(_GridInfo)) { _GridInfo = _NA; }
+            if (pnt != null) { gridInfo = GetGridInfo(pnt); }
+            if (string.IsNullOrEmpty(gridInfo)) { gridInfo = _NA; }
           }
 
+
           if (!exportElems.Any()) { continue; }
-          var name = $"{ProjectCode}_{_FileCode}_{ToolName}_{levelName}_{_GridInfo}";
+          var name = $"{ProjectCode}_{_FileCode}_{ToolName}_{levelName}_{gridInfo}";
           IsolateByWorkType(name, exportElems);
         }
       }
     }
 
+    /// <summary>
+    /// XYZ 좌표를 통하여 어느 그리드 범주에 있는지 파악
+    /// </summary>
+    /// <param name="pnt"></param>
+    /// <returns></returns>
+    private string GetGridInfo(XYZ pnt) {
+      var gridInfo = string.Empty;
+      for (int i = 0; i < XGridList.Count - 1; i++) {
+        var xGrid0 = XGridList[i];
+        var xGrid1 = XGridList[i + 1];
+        if (xGrid0.Curve is Line line0 && xGrid1.Curve is Line line1) {
+          if (pnt.X > line0.Origin.X && pnt.X < line1.Origin.X) {
+            gridInfo += xGrid0.Name;
+            break;
+          }
+        }
+      }
+      for (int i = 0; i < YGridList.Count - 1; i++) {
+        var yGrid0 = YGridList[i];
+        var yGrid1 = YGridList[i + 1];
+        if (yGrid0.Curve is Line line0 && yGrid1.Curve is Line line1) {
+          if (pnt.Y > line0.Origin.Y && pnt.Y < line1.Origin.Y) {
+            gridInfo += yGrid0.Name;
+            break;
+          }
+        }
+      }
+
+      if (string.IsNullOrEmpty(gridInfo)) { return _NA; }
+      return gridInfo;
+    }
+
+
     private void IsolateByWorkType(string name, List<Element> elems) {
-      var dicionary = new Dictionary<string, List<Element>>();
+      var infos = new List<FbxExportInfo>();
       foreach (var item in elems) {
         if (item.Location == null) { continue; }
 
-        var category = Utilites.Util_NA;
-        var value = ProjectParameterList.Read(item).UtilityCategory;
-
-        if (string.IsNullOrEmpty(value)) {
-          switch (item.GetBuiltInCategory()) {
-            case BuiltInCategory.OST_GenericModel:
-              category = Utilites.Util_ICase;
-              break;
-            case BuiltInCategory.OST_CableTray:
-            case BuiltInCategory.OST_CableTrayFitting:
-              category = Utilites.Util_JCase;
-              break;
-            case BuiltInCategory.OST_MechanicalEquipment:
-              category = Utilites.Util_GCase;
-              break;
-          }
-        } else {
-          bool isFound = false;
-          foreach (var kvp in Utilites.UtilityDictionary) {
-            foreach (var cate in kvp.Value) {
-              if (cate.ToUpper().Equals(value.ToUpper())) {
-                category = kvp.Key;
-                isFound = true;
-                break;
-              }
-            }
-            if (isFound) { break; }
-          }
-        }
-
-        AddDictionary(category, item, ref dicionary);
+        var category = GetCategoryName(item);
+        infos.AddItem(category, item);
       }
 
       name = ExportorCommonMethod.RemoveInvalidChars(name);
-      foreach (var kvp in dicionary) {
-        var fbxName = $"{name}_{kvp.Key}";
+      foreach (var info in infos) {
+        var fbxName = $"{name}_{info.CategoryName}";
         var ids = new HashSet<ElementId>();
-        foreach (var item in kvp.Value) {
+        var infoElems = info.Elements;
+        foreach (var item in infoElems) {
           ids.Add(item.Id);
         }
         if (!ids.Any()) { continue; }
@@ -763,29 +718,83 @@ namespace Project1.Revit.FbxNwcExportor {
         ExoortFbx(fbxName, ids.ToList(), null);
       }
 
-      if (!IsExportFbx) { CsvFileExport.ExportCsvInfo(name, dicionary); }
+      if (!IsExportFbx) { CsvFileExport.ExportCsvInfo(name, infos); }
+    }
+
+    private string GetCategoryName(Element element) {
+      var category = Utilites.Util_NA;
+
+      var value = ProjectParameterList.Read(element).UtilityCategory;
+      if (string.IsNullOrEmpty(value)) {
+        switch (element.GetBuiltInCategory()) {
+          case BuiltInCategory.OST_GenericModel:
+            return Utilites.Util_ICase;
+          case BuiltInCategory.OST_CableTray:
+          case BuiltInCategory.OST_CableTrayFitting:
+            return Utilites.Util_JCase;
+          case BuiltInCategory.OST_MechanicalEquipment:
+            return Utilites.Util_GCase;
+        }
+      } else {
+        foreach (var kvp in Utilites.UtilityDictionary) {
+          foreach (var cate in kvp.Value) {
+            if (cate.ToUpper().Equals(value.ToUpper())) {
+              return kvp.Key;
+            }
+          }
+        }
+      }
+
+      return category;
+    }
+
+    private void GetConstructionCategory(string[] splitNames,
+        out string mainCatecory, out string subCatecory) {
+      mainCatecory = Constructions.ConstructionSub_NA;
+      subCatecory = Constructions.ConstructionSub_NA;
+
+      foreach (var kvp in Constructions.ConstructionBim) {
+        for (int i = 0; i < splitNames.Count(); i++) {
+          var splited = splitNames[i];
+          if (splited.Equals(kvp.Key)) {
+            mainCatecory = splited;
+
+            for (int j = i + 1; j < splitNames.Count(); j++) {
+              var splitedMid = splitNames[j];
+              foreach (var item in kvp.Value) {
+                if (splitedMid.Contains(item)) {
+                  subCatecory = item;
+                  return;
+                }
+              }
+            }
+          }
+        }
+      }
+      return;
     }
 
     private void BasisLinkFileName(string levelGrid) {
-      var categoriesDictionary = new Dictionary<string, Dictionary<string, List<Element>>>();
-      foreach (var item in _ClassificationLink) {
-        var splits = item.Key.Split('_');
+      var categoryInfos = new List<FbxExportInfo>();
+      foreach (var info in _ExportInfos) {
+        var splits = info.CategoryName.Split('_');
         var fileName = $"{splits[0]}_{splits[1]}";
-        var cate = $"{splits[2]}_{splits[3]}";
-        var fbxName = $"{fileName}_{levelGrid}_{cate}";
+        var category = $"{splits[2]}_{splits[3]}";
+        var fbxName = $"{fileName}_{levelGrid}_{category}";
 
         var elemInLinkFile = new List<Element>();
         var viewedIds = new List<ElementId>();
         var hideIds = new List<ElementId>();
 
-        foreach (var kvp in _ClassificationLink) {
-          if (!item.Key.Equals(kvp.Key)) {
-            foreach (var link in kvp.Value) {
+        foreach (var item1 in _ExportInfos) {
+          var links = item1.LinkInstances;
+          if (!info.CategoryName.Equals(item1.CategoryName)) {
+            foreach (var link in item1.LinkInstances) {
               hideIds.Add(link.Id);
             }
             continue;
           }
-          foreach (var link in kvp.Value) {
+          foreach (var link in links) {
             viewedIds.Add(link.Id);
             View3D view = null;
             var linkViews = link.GetLinkDocument().TypeElements(typeof(View3D));
@@ -804,22 +813,16 @@ namespace Project1.Revit.FbxNwcExportor {
         }
         if (!elemInLinkFile.Any()) { continue; }
 
-        if (categoriesDictionary.ContainsKey(fileName)) {
-          categoriesDictionary[fileName].Add(cate, elemInLinkFile);
-        } else {
-          var midCateDic = new Dictionary<string, List<Element>>();
-          midCateDic.Add(cate, elemInLinkFile);
-          categoriesDictionary.Add(fileName, midCateDic);
-        }
-
-        ExoortFbx(fbxName, viewedIds, hideIds);
+        var mainInfo = FbxExportInfoMethod.GetDefaultExportInfo(categoryInfos, fileName);
+        mainInfo.SubCategoryInfos.Add(new FbxExportInfo(category, elemInLinkFile));
       }
 
       if (!IsExportFbx) {
-        foreach (var kvp in categoriesDictionary) {
-          CsvFileExport.ExportCsvInfo($"{kvp.Key}_{levelGrid}", kvp.Value);
+        foreach (var info in categoryInfos) {
+          CsvFileExport.ExportCsvInfo($"{info.CategoryName}_{levelGrid}", info.SubCategoryInfos);
         }
       }
+
       return;
     }
 
@@ -857,11 +860,6 @@ namespace Project1.Revit.FbxNwcExportor {
           tx.RollBack();
         }
       }
-    }
-
-    private void AddDictionary<T>(string key, T value,
-                                  ref Dictionary<string, List<T>> dictionary) {
-      if (dictionary.ContainsKey(key)) { dictionary[key].Add(value); } else { dictionary.Add(key, new List<T>() { value }); }
     }
   }
 }

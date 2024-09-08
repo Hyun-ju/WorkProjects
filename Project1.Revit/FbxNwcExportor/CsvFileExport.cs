@@ -18,7 +18,6 @@ namespace Project1.Revit.FbxNwcExportor {
       public const string VizRevitFileCode = "VIZ_REVIT_FILE_CODE";
       public const string VizFamilyName = "VIZ_FAMILY_NAME";
       public const string VizFamilyType = "VIZ_FAMILY_TYPE";
-      // 20230117 마지막 쉽표 제거
       //public const string EquipmentType = "EQUIPMENT_TPYE"; // MODULE
       public const string EquipmentType = "EQUIPMENT_TYPE"; // MODULE
       public const string EquipmentName = "EQUIPMENT_NAME"; // Family Name
@@ -81,14 +80,56 @@ namespace Project1.Revit.FbxNwcExportor {
     public static bool _IsToolMode;
 
     public static void ExportCsvInfo(string fbxName,
+        List<FbxExportInfo> infos) {
+      if (App.Current.ExportorObject != null) {
+        _ExportSaveDirectory = App.Current.ExportorObject.ExportSaveDirectory;
+      }
+
+      var type = string.Empty;
+      if (_IsGridMode) { type = "BIM"; } else if (_IsToolMode) { type = "5D"; }
+      var path = Path.Combine(_ExportSaveDirectory, $"{fbxName}_{type}.csv");
+
+      //using (var file = new StreamWriter(path, false, System.Text.Encoding.GetEncoding("euc-kr"))) {
+      //  WriteCsvHeader(file);
+      //  foreach (var kvp in workTypeDic) {
+      //    foreach (var item in kvp.Value) {
+      //      if (_IsGridMode) {
+      //        ConstructionCsv($"{fbxName}_{kvp.Key}", item, file);
+      //      }
+      //      else if (_IsToolMode) {
+      //        HookupCsv($"{fbxName}_{kvp.Key}", item, file);
+      //      }
+      //    }
+      //  }
+      //  file.Close();
+      //}
+
+      using (var file = new StreamWriter(path, false, System.Text.Encoding.UTF8))
+      using (var csv = new CsvWriter(file, System.Globalization.CultureInfo.CurrentCulture)) {
+        WriteCsvHeader(csv);
+        foreach (var info in infos) {
+          var elems = info.Elements;
+          var name = info.CategoryName;
+          foreach (var item in elems) {
+            if (_IsGridMode) {
+              ConstructionCsv($"{fbxName}_{name}", item, csv);
+            } else if (_IsToolMode) {
+              HookupCsv($"{fbxName}_{name}", item, csv);
+            }
+          }
+        }
+        csv.Flush();
+      }
+    }
+
+    public static void ExportCsvInfo(string fbxName,
         Dictionary<string, List<Element>> workTypeDic) {
       if (App.Current.ExportorObject != null) {
         _ExportSaveDirectory = App.Current.ExportorObject.ExportSaveDirectory;
       }
 
       var type = string.Empty;
-      if (_IsGridMode) { type = "BIM"; }
-      else if (_IsToolMode) { type = "5D"; }
+      if (_IsGridMode) { type = "BIM"; } else if (_IsToolMode) { type = "5D"; }
       var path = Path.Combine(_ExportSaveDirectory, $"{fbxName}_{type}.csv");
 
       //using (var file = new StreamWriter(path, false, System.Text.Encoding.GetEncoding("euc-kr"))) {
@@ -113,8 +154,7 @@ namespace Project1.Revit.FbxNwcExportor {
           foreach (var item in kvp.Value) {
             if (_IsGridMode) {
               ConstructionCsv($"{fbxName}_{kvp.Key}", item, csv);
-            }
-            else if (_IsToolMode) {
+            } else if (_IsToolMode) {
               HookupCsv($"{fbxName}_{kvp.Key}", item, csv);
             }
           }
@@ -155,8 +195,7 @@ namespace Project1.Revit.FbxNwcExportor {
         csv.WriteField(CsvHeaderNames.ObjectMaxY);
         csv.WriteField(CsvHeaderNames.ObjectMaxZ);
         csv.NextRecord();
-      }
-      else if (_IsToolMode) {
+      } else if (_IsToolMode) {
         csv.WriteField(CsvHeaderNames.FileName);
         csv.WriteField(CsvHeaderNames.VizId);
         csv.WriteField(CsvHeaderNames.ToolCode);
@@ -258,8 +297,7 @@ namespace Project1.Revit.FbxNwcExportor {
         csv.WriteField($"{string.Empty}");
         csv.WriteField($"{string.Empty}");
         csv.WriteField($"{string.Empty}");
-      }
-      else {
+      } else {
         csv.WriteField($"{CommaCheck(fbxName)}");
         csv.WriteField($"{CommaCheck(fbxName)}_{elem.Id}");
         csv.WriteField($"{CommaCheck(projectParams?.EqId)}");
