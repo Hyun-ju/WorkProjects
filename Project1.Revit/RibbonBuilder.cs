@@ -90,32 +90,32 @@ namespace Project1.Revit {
           "벤딩 엘보\n길이",
           null,
           null,
-          Properties.Resources.ImgNoImage_16,
-          Properties.Resources.ImgNoImage_32);
+          Properties.Resources.Icon_BendingLength_16,
+          Properties.Resources.Icon_BendingLength_32);
 
       var _IsoDemsion = Utils.CreatePushButton(
           panel, typeof(IsoPipeDimension.CmdPipeDimension),
           "ISO 치수\n입력",
           null,
           null,
-          Properties.Resources.ImgNoImage_16,
-          Properties.Resources.ImgNoImage_32);
+          Properties.Resources.Icon_ISO_16,
+          Properties.Resources.Icon_ISO_32);
 
       var _AlignPipe = Utils.CreatePushButton(
           panel, typeof(AlignPipe.CmdAlignPipe),
           "배관 간격\n조정",
           null,
           null,
-          Properties.Resources.ImgNoImage_16,
-          Properties.Resources.ImgNoImage_32);
+          Properties.Resources.Icon_PipeAlign_16,
+          Properties.Resources.Icon_PipeAlign_32);
 
       var _FamilyQc = Utils.CreatePushButton(
           panel, typeof(MultiFaceFloorPlan.CmdMultiFaceFloorPlan),
           "6면 도면\nQC",
           null,
           null,
-          Properties.Resources.ImgNoImage_16,
-          Properties.Resources.ImgNoImage_32);
+          Properties.Resources.Icon_MultiFacePlan_16,
+          Properties.Resources.Icon_MultiFacePlane_32);
       _FamilyQc.AvailabilityClassName = typeof(MultiFaceFloorPlan.ButtonAvailability).FullName;
     }
 
@@ -127,15 +127,15 @@ namespace Project1.Revit {
           "FBX Export",
           null,
           null,
-          Properties.Resources.ImgNoImage_16,
-          Properties.Resources.ImgNoImage_32);
+          Properties.Resources.Icon_FbxExport_16,
+          Properties.Resources.Icon_FbxExport_32);
       var _NwcExportButton = Utils.CreatePushButton(
           panel, typeof(FbxNwcExportor.CmdNavisworksExport),
           "NWC Export",
           null,
           null,
-          Properties.Resources.ImgNoImage_16,
-          Properties.Resources.ImgNoImage_32);
+          Properties.Resources.Icon_NwcExport_16,
+          Properties.Resources.Icon_NwcExport_32);
     }
 
     private adwin.RibbonTab CreateRibbonTab(string newTabName) {

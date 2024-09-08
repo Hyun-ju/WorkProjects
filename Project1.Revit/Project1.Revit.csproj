@@ -244,16 +244,46 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\ImgNoImage_16.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\ImgNoImage_32.png" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\Project1.Revit.Exportor.IPC\Project1.Revit.Exportor.IPC.csproj">
       <Project>{d6dee841-c8af-4faf-9bda-d1acc289b115}</Project>
       <Name>Project1.Revit.Exportor.IPC</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Icon_NwcExport_16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Icon_NwcExport_32.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Icon_FbxExport_16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Icon_FbxExport_32.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Icon_MultiFacePlane_32.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Icon_MultiFacePlan_16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Icon_PipeAlign_16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Icon_PipeAlign_32.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Icon_ISO_32.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Icon_ISO_16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Icon_BendingLength_16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Icon_BendingLength_32.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\NETStandard.Library.2.0.3\build\netstandard2.0\NETStandard.Library.targets" Condition="Exists('..\packages\NETStandard.Library.2.0.3\build\netstandard2.0\NETStandard.Library.targets')" />

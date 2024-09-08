@@ -19,7 +19,7 @@ namespace Project1.Revit.Properties {
     // 클래스에서 자동으로 생성되었습니다.
     // 멤버를 추가하거나 제거하려면 .ResX 파일을 편집한 다음 /str 옵션을 사용하여 ResGen을
     // 다시 실행하거나 VS 프로젝트를 다시 빌드하십시오.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resources {
@@ -63,9 +63,9 @@ namespace Project1.Revit.Properties {
         /// <summary>
         ///   System.Drawing.Bitmap 형식의 지역화된 리소스를 찾습니다.
         /// </summary>
-        internal static System.Drawing.Bitmap ImgNoImage_16 {
+        internal static System.Drawing.Bitmap Icon_BendingLength_16 {
             get {
-                object obj = ResourceManager.GetObject("ImgNoImage_16", resourceCulture);
+                object obj = ResourceManager.GetObject("Icon_BendingLength_16", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -73,9 +73,109 @@ namespace Project1.Revit.Properties {
         /// <summary>
         ///   System.Drawing.Bitmap 형식의 지역화된 리소스를 찾습니다.
         /// </summary>
-        internal static System.Drawing.Bitmap ImgNoImage_32 {
+        internal static System.Drawing.Bitmap Icon_BendingLength_32 {
             get {
-                object obj = ResourceManager.GetObject("ImgNoImage_32", resourceCulture);
+                object obj = ResourceManager.GetObject("Icon_BendingLength_32", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   System.Drawing.Bitmap 형식의 지역화된 리소스를 찾습니다.
+        /// </summary>
+        internal static System.Drawing.Bitmap Icon_FbxExport_16 {
+            get {
+                object obj = ResourceManager.GetObject("Icon_FbxExport_16", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   System.Drawing.Bitmap 형식의 지역화된 리소스를 찾습니다.
+        /// </summary>
+        internal static System.Drawing.Bitmap Icon_FbxExport_32 {
+            get {
+                object obj = ResourceManager.GetObject("Icon_FbxExport_32", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   System.Drawing.Bitmap 형식의 지역화된 리소스를 찾습니다.
+        /// </summary>
+        internal static System.Drawing.Bitmap Icon_ISO_16 {
+            get {
+                object obj = ResourceManager.GetObject("Icon_ISO_16", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   System.Drawing.Bitmap 형식의 지역화된 리소스를 찾습니다.
+        /// </summary>
+        internal static System.Drawing.Bitmap Icon_ISO_32 {
+            get {
+                object obj = ResourceManager.GetObject("Icon_ISO_32", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   System.Drawing.Bitmap 형식의 지역화된 리소스를 찾습니다.
+        /// </summary>
+        internal static System.Drawing.Bitmap Icon_MultiFacePlan_16 {
+            get {
+                object obj = ResourceManager.GetObject("Icon_MultiFacePlan_16", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   System.Drawing.Bitmap 형식의 지역화된 리소스를 찾습니다.
+        /// </summary>
+        internal static System.Drawing.Bitmap Icon_MultiFacePlane_32 {
+            get {
+                object obj = ResourceManager.GetObject("Icon_MultiFacePlane_32", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   System.Drawing.Bitmap 형식의 지역화된 리소스를 찾습니다.
+        /// </summary>
+        internal static System.Drawing.Bitmap Icon_NwcExport_16 {
+            get {
+                object obj = ResourceManager.GetObject("Icon_NwcExport_16", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   System.Drawing.Bitmap 형식의 지역화된 리소스를 찾습니다.
+        /// </summary>
+        internal static System.Drawing.Bitmap Icon_NwcExport_32 {
+            get {
+                object obj = ResourceManager.GetObject("Icon_NwcExport_32", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   System.Drawing.Bitmap 형식의 지역화된 리소스를 찾습니다.
+        /// </summary>
+        internal static System.Drawing.Bitmap Icon_PipeAlign_16 {
+            get {
+                object obj = ResourceManager.GetObject("Icon_PipeAlign_16", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   System.Drawing.Bitmap 형식의 지역화된 리소스를 찾습니다.
+        /// </summary>
+        internal static System.Drawing.Bitmap Icon_PipeAlign_32 {
+            get {
+                object obj = ResourceManager.GetObject("Icon_PipeAlign_32", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
